@@ -1,0 +1,6 @@
+sku,quantity,movement_type,reference_id,notes
+LAP-001,10,purchase,PO-2024-001,Initial stock
+MON-001,5,purchase,PO-2024-002,Initial stock
+KEY-001,-2,sale,SO-2024-001,Customer order
+MOU-001,15,purchase,PO-2024-003,Restock
+HDD-001,-1,sale,SO-2024-002,Customer order 

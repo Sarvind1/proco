@@ -1,0 +1,4 @@
+po_number,supplier_name,status,total_amount,currency,expected_delivery_date,notes,items_file
+PO-2024-001,Tech Supplies Inc,draft,1299.99,USD,2024-03-15,Initial laptop order,po_items_001.csv
+PO-2024-002,Office Essentials,pending,799.98,USD,2024-03-20,Monitor order,po_items_002.csv
+PO-2024-003,Global Electronics,ordered,449.97,USD,2024-03-25,Keyboard and mouse order,po_items_003.csv 
