@@ -1,165 +1,109 @@
-# Procurement Management System
+# Procurement System
 
-A full-stack procurement and inventory management platform with Amazon Seller Central integration, purchase order tracking, and CSV import/export capabilities.
+A comprehensive procurement and inventory management platform with Amazon Seller Partner API integration. Manage products, purchase orders, suppliers, and inventory movements through an intuitive web interface with CSV import/export capabilities.
 
 ## Features
 
-- **Inventory Management** – Track product SKUs, stock levels, costs, and minimum quantities
-- **Purchase Orders** – Create and manage supplier purchase orders with order tracking
-- **Supplier Management** – Maintain supplier information and contact details
-- **Amazon Integration** – Sync orders, inventory, and products with Amazon Seller Central using SP-API
-- **CSV Import/Export** – Bulk import products, inventory movements, and purchase orders from CSV
-- **User Authentication** – Secure login and role-based access control
-- **REST API** – Complete RESTful API for all operations
-- **Real-time Dashboard** – Monitor inventory levels, recent orders, and system health
+- **Procurement Management** - Create and manage purchase orders with supplier tracking
+- **Inventory Management** - Track inventory levels, movements, and stock alerts
+- **Amazon Integration** - Sync orders, inventory, and products with Amazon Seller Central
+- **CSV Import/Export** - Bulk import products, inventory, and purchase orders from CSV
+- **User Authentication** - Secure login with role-based access control
+- **RESTful API** - Full-featured FastAPI backend with OpenAPI documentation
+- **Real-time Dashboard** - Interactive React frontend with responsive design
+- **Async Tasks** - Background task processing with Celery for bulk operations
 
 ## Tech Stack
 
 **Backend:**
-- FastAPI – Modern Python web framework
-- SQLAlchemy – ORM for database operations
-- Celery – Background task processing
-- Pandas – CSV file processing
-- Amazon SP-API – Seller Central integration
+- FastAPI
+- SQLAlchemy ORM
+- Celery (async tasks)
+- Amazon Seller Partner API
+- PostgreSQL/SQLite
 
 **Frontend:**
-- React 18 with TypeScript
-- Vite – Fast build tool
-- Tailwind CSS – Utility-first styling
-- React Router – Client-side routing
-
-**Database:**
-- SQLite (development) / PostgreSQL (production-ready)
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- TanStack Table
 
 ## Setup
 
 ### Backend
 
 1. Create and activate a virtual environment:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
 2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-3. Configure environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
+3. Configure environment variables in `.env`:
+```
+DATABASE_URL=sqlite:///./test.db
+AMAZON_CLIENT_ID=your_amazon_client_id
+AMAZON_CLIENT_SECRET=your_amazon_client_secret
+AMAZON_REFRESH_TOKEN=your_refresh_token
+AWS_ACCESS_KEY=your_aws_key
+AWS_SECRET_KEY=your_aws_secret
+AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
+```
 
-4. Initialize the database:
-   ```bash
-   python scripts/init_db.py
-   ```
+4. Run the API server:
+```bash
+python -m uvicorn app.main:app --reload
+```
 
-5. Start the API server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-
-The API will be available at `http://localhost:8000` with interactive docs at `/docs`.
+API docs available at `http://localhost:8000/docs`
 
 ### Frontend
 
 1. Navigate to the frontend directory:
-   ```bash
-   cd Proc2/procurement-frontend
-   ```
+```bash
+cd Proc2/procurement-frontend
+```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open `http://localhost:5173` in your browser
-
-### Background Tasks (Celery)
-
 ```bash
-celery -A app.worker worker --loglevel=info
+npm install
+```
+
+3. Configure environment in `.env`:
+```
+VITE_API_URL=http://localhost:8000/api/v1
+```
+
+4. Start the development server:
+```bash
+npm run dev
 ```
 
 ## Usage
 
-### API Endpoints
+1. **Login**: Access the frontend at `http://localhost:5173` and login with default credentials
+2. **Create Products**: Navigate to Products page and add items or import from CSV
+3. **Manage Suppliers**: Add suppliers in the Suppliers section
+4. **Create Purchase Orders**: Create POs linked to suppliers and products
+5. **Track Inventory**: Monitor inventory levels and movement history
+6. **Amazon Sync**: Connect Amazon account in Settings and sync orders/inventory
 
-- `POST /api/v1/auth/login` – Authenticate user
-- `GET /api/v1/products` – List all products
-- `POST /api/v1/products` – Create new product
-- `GET /api/v1/suppliers` – List suppliers
-- `GET /api/v1/purchase-orders` – List purchase orders
-- `GET /api/v1/inventory` – List inventory movements
-- `POST /api/v1/amazon/sync` – Sync Amazon orders and inventory
+## API Endpoints
 
-### CSV Import
+- `POST /api/v1/auth/login` - User authentication
+- `GET/POST /api/v1/products` - Product management
+- `GET/POST /api/v1/suppliers` - Supplier management
+- `GET/POST /api/v1/purchase-orders` - Purchase order operations
+- `GET/POST /api/v1/inventory` - Inventory tracking
+- `GET /api/v1/amazon/orders` - Amazon order sync
 
-Place CSV files in `templates/` directory with proper column headers:
+## Development
 
-**products.csv:**
-```
-sku,name,description,price,cost,quantity,min_quantity,asin
-TEST-001,Product Name,Description,99.99,49.99,100,10,B001EXAMPLE
-```
-
-**purchase_orders.csv:**
-```
-po_number,supplier_id,status,total_amount,currency,expected_delivery_date
-PO-2024-001,1,draft,500.00,USD,2024-04-30
-```
-
-Then use the import API endpoints to process the files.
-
-## Configuration
-
-Key environment variables (see `.env`):
-
-```
-DATABASE_URL=sqlite:///./test.db
-SECRET_KEY=your-secret-key-here
-AMAZON_REFRESH_TOKEN=your-amazon-token
-AMAZON_CLIENT_ID=your-client-id
-AMAZON_CLIENT_SECRET=your-client-secret
-AWS_ACCESS_KEY=your-aws-access-key
-AWS_SECRET_KEY=your-aws-secret-key
-AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-```
-
-## Project Structure
-
-```
-├── app/                          # Backend application
-│   ├── api/v1/                   # API endpoints
-│   ├── integrations/             # Amazon SP-API and CSV import
-│   ├── models/                   # SQLAlchemy models
-│   ├── schemas/                  # Pydantic schemas
-│   ├── tasks/                    # Celery tasks
-│   ├── core/                     # Config, database, security
-│   └── main.py                   # FastAPI app entry point
-├── Proc2/procurement-frontend/   # React frontend
-│   ├── src/
-│   │   ├── components/           # React components
-│   │   ├── pages/                # Page components
-│   │   ├── services/             # API service calls
-│   │   ├── stores/               # State management
-│   │   └── App.tsx               # Main app component
-│   └── package.json
-├── scripts/                      # Utility scripts
-├── templates/                    # CSV import templates
-├── requirements.txt              # Python dependencies
-└── README.md                     # This file
-```
-
-## License
-
-MIT
+- Backend tests: `pytest`
+- Frontend tests: `npm run test`
+- Linting: Backend with `pylint`, Frontend with `npm run lint`

@@ -1,3 +1,10 @@
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Python
 __pycache__/
 *.py[cod]
@@ -16,12 +23,12 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Virtual environments
 .venv/
@@ -31,92 +38,53 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-.env.production.local
-.env.test.local
-.env.development.local
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Testing database
 test.db
+*.db
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
-Thumbs.db
-*.sublime-project
-*.sublime-workspace
 
-# OS
-.DS_Store
-.AppleDouble
-.LSOverride
-Thumbs.db
-ehthumbs.db
-
-# Node / Frontend
+# Node / npm (Frontend)
 node_modules/
+dist/
+dist-ssr/
+*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-dist/
-dist-ssr/
-*.local
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# CSV templates (for reference only, don't track)
-templates/*.csv
-
-# IDEs and editors
-.vscode/*
-!.vscode/extensions.json
-.idea/
+# Editor files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# macOS
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# OS
+.DS_Store
+Thumbs.db
 .AppleDouble
 .LSOverride
-._*
-.Spotlight-V100
-.Trashes
-.VolumeIcon.icns
-*.dmg
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Miscellaneous
-*.bak
-*.backup
+# Temporary files
 *.tmp
+*.bak
+*.swp
