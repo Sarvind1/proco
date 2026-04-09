@@ -1,156 +1,165 @@
-# Procurement & Inventory Management System
+# Procurement Management System
 
-A cost-effective, open-source-based procurement, inventory, and Amazon sales data integration system.
+A full-stack procurement and inventory management platform with Amazon Seller Central integration, purchase order tracking, and CSV import/export capabilities.
 
 ## Features
 
-- 🌐 Live sync with Amazon SP-API
-- 📄 CSV-based fallback/import workflows
-- 🧱 Modular, scalable architecture
-- 🔄 Real-time inventory management
-- 📊 Multi-channel sales integration
-- 📈 Analytics and reporting
+- **Inventory Management** – Track product SKUs, stock levels, costs, and minimum quantities
+- **Purchase Orders** – Create and manage supplier purchase orders with order tracking
+- **Supplier Management** – Maintain supplier information and contact details
+- **Amazon Integration** – Sync orders, inventory, and products with Amazon Seller Central using SP-API
+- **CSV Import/Export** – Bulk import products, inventory movements, and purchase orders from CSV
+- **User Authentication** – Secure login and role-based access control
+- **REST API** – Complete RESTful API for all operations
+- **Real-time Dashboard** – Monitor inventory levels, recent orders, and system health
 
-## System Architecture
+## Tech Stack
 
-The system consists of several key components:
+**Backend:**
+- FastAPI – Modern Python web framework
+- SQLAlchemy – ORM for database operations
+- Celery – Background task processing
+- Pandas – CSV file processing
+- Amazon SP-API – Seller Central integration
 
-1. **Open-Source ERP Integration**
-   - Purchase order management
-   - Supplier management
-   - Inventory tracking
-   - Multi-currency support
+**Frontend:**
+- React 18 with TypeScript
+- Vite – Fast build tool
+- Tailwind CSS – Utility-first styling
+- React Router – Client-side routing
 
-2. **Amazon SP-API Integration**
-   - Real-time product sync
-   - Inventory management
-   - Order processing
-   - Fulfillment status updates
+**Database:**
+- SQLite (development) / PostgreSQL (production-ready)
 
-3. **CSV Import System**
-   - Automated file processing
-   - Data validation
-   - Error handling
-   - Manual upload interface
+## Setup
 
-4. **Middleware/API Layer**
-   - RESTful API endpoints
-   - Authentication/Authorization
-   - Data transformation
-   - Logging and monitoring
+### Backend
 
-## Prerequisites
-
-- Python 3.9+
-- PostgreSQL 13+
-- Redis (for task queue)
-- Docker (optional)
-
-## Installation
-
-1. Clone the repository:
+1. Create and activate a virtual environment:
    ```bash
-   git clone <repository-url>
-   cd procurement-system
+   python3 -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables:
+3. Configure environment variables:
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Edit .env with your settings
    ```
 
-5. Initialize the database:
+4. Initialize the database:
    ```bash
    python scripts/init_db.py
    ```
 
-## Configuration
-
-Create a `.env` file with the following variables:
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/procurement_db
-
-# Amazon SP-API
-AMAZON_REFRESH_TOKEN=your_refresh_token
-AMAZON_CLIENT_ID=your_client_id
-AMAZON_CLIENT_SECRET=your_client_secret
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# API Settings
-API_SECRET_KEY=your_secret_key
-API_ALGORITHM=HS256
-```
-
-## Running the Application
-
-1. Start the API server:
+5. Start the API server:
    ```bash
    uvicorn app.main:app --reload
    ```
 
-2. Start the Celery worker:
+The API will be available at `http://localhost:8000` with interactive docs at `/docs`.
+
+### Frontend
+
+1. Navigate to the frontend directory:
    ```bash
-   celery -A app.worker worker --loglevel=info
+   cd Proc2/procurement-frontend
    ```
 
-3. Start the CSV import listener:
+2. Install dependencies:
    ```bash
-   python scripts/csv_listener.py
+   npm install
    ```
 
-## API Documentation
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-Once the server is running, visit:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+4. Open `http://localhost:5173` in your browser
 
-## Development
+### Background Tasks (Celery)
 
-### Code Style
-
-This project uses:
-- Black for code formatting
-- isort for import sorting
-- flake8 for linting
-
-Run the formatters:
 ```bash
-black .
-isort .
-flake8
+celery -A app.worker worker --loglevel=info
 ```
 
-### Testing
+## Usage
 
-Run tests with pytest:
-```bash
-pytest
+### API Endpoints
+
+- `POST /api/v1/auth/login` – Authenticate user
+- `GET /api/v1/products` – List all products
+- `POST /api/v1/products` – Create new product
+- `GET /api/v1/suppliers` – List suppliers
+- `GET /api/v1/purchase-orders` – List purchase orders
+- `GET /api/v1/inventory` – List inventory movements
+- `POST /api/v1/amazon/sync` – Sync Amazon orders and inventory
+
+### CSV Import
+
+Place CSV files in `templates/` directory with proper column headers:
+
+**products.csv:**
+```
+sku,name,description,price,cost,quantity,min_quantity,asin
+TEST-001,Product Name,Description,99.99,49.99,100,10,B001EXAMPLE
+```
+
+**purchase_orders.csv:**
+```
+po_number,supplier_id,status,total_amount,currency,expected_delivery_date
+PO-2024-001,1,draft,500.00,USD,2024-04-30
+```
+
+Then use the import API endpoints to process the files.
+
+## Configuration
+
+Key environment variables (see `.env`):
+
+```
+DATABASE_URL=sqlite:///./test.db
+SECRET_KEY=your-secret-key-here
+AMAZON_REFRESH_TOKEN=your-amazon-token
+AMAZON_CLIENT_ID=your-client-id
+AMAZON_CLIENT_SECRET=your-client-secret
+AWS_ACCESS_KEY=your-aws-access-key
+AWS_SECRET_KEY=your-aws-secret-key
+AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+```
+
+## Project Structure
+
+```
+├── app/                          # Backend application
+│   ├── api/v1/                   # API endpoints
+│   ├── integrations/             # Amazon SP-API and CSV import
+│   ├── models/                   # SQLAlchemy models
+│   ├── schemas/                  # Pydantic schemas
+│   ├── tasks/                    # Celery tasks
+│   ├── core/                     # Config, database, security
+│   └── main.py                   # FastAPI app entry point
+├── Proc2/procurement-frontend/   # React frontend
+│   ├── src/
+│   │   ├── components/           # React components
+│   │   ├── pages/                # Page components
+│   │   ├── services/             # API service calls
+│   │   ├── stores/               # State management
+│   │   └── App.tsx               # Main app component
+│   └── package.json
+├── scripts/                      # Utility scripts
+├── templates/                    # CSV import templates
+├── requirements.txt              # Python dependencies
+└── README.md                     # This file
 ```
 
 ## License
 
-MIT License
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request 
+MIT
