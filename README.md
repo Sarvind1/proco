@@ -1,135 +1,147 @@
-# Procurement System
+# Procurement System API
 
-A full-stack procurement and inventory management system with Amazon sales integration. Manage products, purchase orders, suppliers, and inventory movements. Includes CSV import/export and real-time Amazon seller central data synchronization.
+A comprehensive FastAPI-based procurement and inventory management system with integrated Amazon Selling Partner API support. Manage products, suppliers, purchase orders, and synchronize inventory with Amazon seamlessly.
 
 ## Features
 
-- **Product Management** - Track products with SKU, ASIN, pricing, and inventory levels
-- **Purchase Orders** - Create and manage purchase orders with line-item tracking
-- **Supplier Management** - Maintain supplier contact information and availability
-- **Inventory Tracking** - Monitor inventory movements, stock levels, and reorder thresholds
-- **Amazon Integration** - Sync orders and inventory data with Amazon Seller Central via SP-API
-- **CSV Import/Export** - Bulk import products and inventory, export data for reporting
-- **User Authentication** - Role-based access control (admin and regular users)
-- **Dashboard** - Real-time view of procurement metrics and inventory status
-- **Async Tasks** - Background job processing with Celery for imports and syncs
+- **Product Management** - Create, update, and manage product catalog with SKUs and ASIN tracking
+- **Inventory Management** - Track inventory movements, stock levels, and reorder thresholds
+- **Purchase Order System** - Create and manage POs with supplier tracking
+- **Amazon Integration** - Sync inventory and orders with Amazon Selling Partner API
+- **CSV Import** - Bulk import products, inventory, and purchase orders from CSV files
+- **User Authentication** - JWT-based authentication with role-based access control
+- **Async Task Processing** - Background job execution using Celery for syncing and imports
+- **RESTful API** - Complete REST API with interactive Swagger documentation
 
 ## Tech Stack
 
-**Backend:**
-- FastAPI (Python web framework)
-- SQLAlchemy ORM with SQLite database
-- Celery for async task queue
-- Amazon SP-API integration
-- Pandas for CSV processing
-
-**Frontend:**
-- React 18 with TypeScript
-- Vite (build tool)
-- Tailwind CSS for styling
-- Axios for API calls
+- **Framework**: FastAPI
+- **ORM**: SQLAlchemy
+- **Database**: SQLite (development) / PostgreSQL (production-ready)
+- **Task Queue**: Celery
+- **Data Processing**: pandas
+- **Authentication**: JWT + bcrypt
+- **API Integration**: Amazon Selling Partner API
 
 ## Setup
 
-### Backend Setup
+### Prerequisites
+- Python 3.8+
+- pip / venv
+- Redis (for Celery task queue, optional for development)
 
-1. Install Python dependencies:
-   ```bash
-   cd app
-   pip install -r requirements.txt
-   ```
+### Installation
 
-2. Create and configure `.env` file:
-   ```
-   DATABASE_URL=sqlite:///./test.db
-   SECRET_KEY=your-secret-key
-   AMAZON_CLIENT_ID=your-amazon-client-id
-   AMAZON_CLIENT_SECRET=your-amazon-secret
-   AMAZON_REFRESH_TOKEN=your-refresh-token
-   AWS_ACCESS_KEY=your-aws-key
-   AWS_SECRET_KEY=your-aws-secret
-   ```
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd procurement-api
+```
 
-3. Initialize the database and seed sample data:
-   ```bash
-   python scripts/seed_data.py
-   ```
+2. Create and activate virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-4. Start the FastAPI server:
-   ```bash
-   python -m uvicorn app.main:app --reload
-   ```
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-5. Start Celery worker (optional, for background tasks):
-   ```bash
-   celery -A app.worker worker --loglevel=info
-   ```
+4. Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-### Frontend Setup
+5. Initialize database:
+```bash
+python scripts/init_db.py
+python scripts/seed_data.py
+```
 
-1. Install Node dependencies:
-   ```bash
-   cd Proc2/procurement-frontend
-   npm install
-   ```
+6. Run the application:
+```bash
+uvicorn app.main:app --reload
+```
 
-2. Create `.env` file:
-   ```
-   VITE_API_URL=http://localhost:8000/api/v1
-   ```
-
-3. Start development server:
-   ```bash
-   npm run dev
-   ```
-
-API documentation available at `http://localhost:8000/docs` (Swagger UI)
+API documentation available at: `http://localhost:8000/docs`
 
 ## Usage
 
-### Access the Application
+### Example API Calls
 
-- **Frontend:** http://localhost:5173
-- **API Docs:** http://localhost:8000/docs
-- **Default credentials:** username: `admin`, password: `admin123`
+**Create a Product:**
+```bash
+curl -X POST http://localhost:8000/api/v1/products \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sku": "PROD001",
+    "name": "Sample Product",
+    "price": 99.99,
+    "quantity": 100
+  }'
+```
 
-### Import Products from CSV
+**Import Products from CSV:**
+```bash
+curl -X POST http://localhost:8000/api/v1/tasks/import-products \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@products.csv"
+```
 
-Upload a CSV file with columns: `sku`, `name`, `price`, `cost`, `quantity`, `min_quantity`, `asin` (optional)
+**Sync Inventory with Amazon:**
+```bash
+curl -X POST http://localhost:8000/api/v1/amazon/sync \
+  -H "Authorization: Bearer <token>"
+```
 
-### Sync Amazon Data
+## Default Credentials
 
-The system automatically syncs orders and inventory from Amazon on a scheduled interval. Manual sync available via the dashboard.
+For development, seed data includes:
+- **Admin**: username: `admin`, password: `admin123`
+- **User**: username: `user`, password: `user123`
 
-### Export Inventory Report
-
-Generate CSV exports of current inventory, purchase orders, and supplier information from the dashboard.
+**Note**: Change these credentials in production.
 
 ## Project Structure
 
 ```
-.
-├── app/                          # FastAPI backend
-│   ├── api/v1/                  # API endpoints
-│   ├── models/                  # SQLAlchemy models
-│   ├── schemas/                 # Pydantic schemas
-│   ├── integrations/            # Amazon SP-API, CSV handling
-│   ├── tasks/                   # Celery async tasks
-│   └── core/                    # Config, security, database
-├── Proc2/procurement-frontend/   # React frontend
-│   ├── src/
-│   │   ├── pages/              # Page components
-│   │   ├── components/         # UI components
-│   │   ├── services/           # API client services
-│   │   └── stores/             # State management
-│   └── package.json
-├── scripts/                     # Utility scripts
-└── templates/                   # CSV import templates
+app/
+├── api/v1/               # API endpoints
+│   └── endpoints/        # Route modules (products, suppliers, etc.)
+├── core/                 # Configuration, database, security
+├── db/                   # Database sessions and models
+├── integrations/         # Third-party integrations (Amazon, CSV)
+├── models/               # SQLAlchemy ORM models
+├── schemas/              # Pydantic request/response schemas
+├── tasks/                # Celery background tasks
+└── main.py              # FastAPI application entry point
+scripts/                  # Database initialization and testing scripts
+templates/                # Sample CSV templates for imports
 ```
 
-## Notes
+## Environment Variables
 
-- Ensure all environment variables are configured before running
-- Use a real database (PostgreSQL recommended) for production instead of SQLite
-- Rotate AWS and Amazon API credentials regularly
-- Configure CORS origins in production environment
+Required variables in `.env`:
+```
+DATABASE_URL=sqlite:///./test.db
+SECRET_KEY=<your-secret-key>
+AMAZON_REFRESH_TOKEN=<token>
+AMAZON_CLIENT_ID=<id>
+AMAZON_CLIENT_SECRET=<secret>
+AWS_ACCESS_KEY=<key>
+AWS_SECRET_KEY=<secret>
+AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
+CORS_ORIGINS=["http://localhost:3000"]
+```
+
+## Contributing
+
+Feel free to fork this repository and submit pull requests for any improvements.
+
+## License
+
+MIT
