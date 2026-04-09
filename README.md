@@ -1,99 +1,135 @@
-# Procurement-Roger
+# Procurement System
 
-A comprehensive FastAPI-based procurement management system with inventory tracking, purchase order management, and Amazon Selling Partner API integration. Streamline procurement workflows with CSV import/export, automated inventory syncing, and async task processing.
+A full-stack procurement and inventory management system with Amazon sales integration. Manage products, purchase orders, suppliers, and inventory movements. Includes CSV import/export and real-time Amazon seller central data synchronization.
 
 ## Features
 
-- **RESTful API** - Built with FastAPI with comprehensive OpenAPI/Swagger documentation
-- **Inventory Management** - Track products, inventory movements, and stock levels
-- **Purchase Order System** - Create, manage, and track purchase orders and suppliers
-- **Amazon Integration** - Sync orders and inventory with Amazon Selling Partner API
-- **CSV Import/Export** - Bulk import products, inventory, and purchase orders via CSV
-- **Async Processing** - Background task queue with Celery for heavy operations
-- **Authentication** - User authentication and role-based access control
-- **Database Management** - SQLAlchemy ORM with initialization and seeding scripts
+- **Product Management** - Track products with SKU, ASIN, pricing, and inventory levels
+- **Purchase Orders** - Create and manage purchase orders with line-item tracking
+- **Supplier Management** - Maintain supplier contact information and availability
+- **Inventory Tracking** - Monitor inventory movements, stock levels, and reorder thresholds
+- **Amazon Integration** - Sync orders and inventory data with Amazon Seller Central via SP-API
+- **CSV Import/Export** - Bulk import products and inventory, export data for reporting
+- **User Authentication** - Role-based access control (admin and regular users)
+- **Dashboard** - Real-time view of procurement metrics and inventory status
+- **Async Tasks** - Background job processing with Celery for imports and syncs
 
 ## Tech Stack
 
-- **Framework**: FastAPI
-- **Database**: SQLAlchemy ORM (SQLite by default, configurable)
-- **Task Queue**: Celery
-- **CSV Processing**: Pandas
-- **Amazon API**: Python SP-API library
-- **Auth**: JWT tokens with bcrypt password hashing
+**Backend:**
+- FastAPI (Python web framework)
+- SQLAlchemy ORM with SQLite database
+- Celery for async task queue
+- Amazon SP-API integration
+- Pandas for CSV processing
+
+**Frontend:**
+- React 18 with TypeScript
+- Vite (build tool)
+- Tailwind CSS for styling
+- Axios for API calls
 
 ## Setup
 
-1. **Clone and enter the directory**
-   ```bash
-   git clone https://github.com/your-username/procurement-roger.git
-   cd procurement-roger
-   ```
+### Backend Setup
 
-2. **Create and activate virtual environment**
+1. Install Python dependencies:
    ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
+   cd app
    pip install -r requirements.txt
    ```
 
-4. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database URL, Amazon API credentials, etc.
+2. Create and configure `.env` file:
+   ```
+   DATABASE_URL=sqlite:///./test.db
+   SECRET_KEY=your-secret-key
+   AMAZON_CLIENT_ID=your-amazon-client-id
+   AMAZON_CLIENT_SECRET=your-amazon-secret
+   AMAZON_REFRESH_TOKEN=your-refresh-token
+   AWS_ACCESS_KEY=your-aws-key
+   AWS_SECRET_KEY=your-aws-secret
    ```
 
-5. **Initialize database**
+3. Initialize the database and seed sample data:
    ```bash
-   python scripts/init_db.py
    python scripts/seed_data.py
    ```
 
-6. **Run the application**
+4. Start the FastAPI server:
    ```bash
-   uvicorn app.main:app --reload
+   python -m uvicorn app.main:app --reload
    ```
 
-The API will be available at `http://localhost:8000`. Access API docs at `/docs` and `/redoc`.
+5. Start Celery worker (optional, for background tasks):
+   ```bash
+   celery -A app.worker worker --loglevel=info
+   ```
 
-## Usage Example
+### Frontend Setup
 
-**List Products**
-```bash
-curl -H "Authorization: Bearer <token>" \
-  http://localhost:8000/api/v1/products
-```
+1. Install Node dependencies:
+   ```bash
+   cd Proc2/procurement-frontend
+   npm install
+   ```
 
-**Import Products from CSV**
-```bash
-POST /api/v1/tasks/import-products
-Content-Type: application/json
+2. Create `.env` file:
+   ```
+   VITE_API_URL=http://localhost:8000/api/v1
+   ```
 
-{"file_path": "templates/products.csv"}
-```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
 
-**Create Purchase Order**
-```bash
-POST /api/v1/purchase-orders
-Content-Type: application/json
+API documentation available at `http://localhost:8000/docs` (Swagger UI)
 
-{
-  "supplier_id": 1,
-  "po_number": "PO-2024-001",
-  "items": [{"product_id": 1, "quantity": 10, "unit_price": 25.00}]
-}
-```
+## Usage
+
+### Access the Application
+
+- **Frontend:** http://localhost:5173
+- **API Docs:** http://localhost:8000/docs
+- **Default credentials:** username: `admin`, password: `admin123`
+
+### Import Products from CSV
+
+Upload a CSV file with columns: `sku`, `name`, `price`, `cost`, `quantity`, `min_quantity`, `asin` (optional)
+
+### Sync Amazon Data
+
+The system automatically syncs orders and inventory from Amazon on a scheduled interval. Manual sync available via the dashboard.
+
+### Export Inventory Report
+
+Generate CSV exports of current inventory, purchase orders, and supplier information from the dashboard.
 
 ## Project Structure
 
-- `app/api/v1/endpoints/` - API route handlers (products, purchase orders, inventory, suppliers, auth)
-- `app/integrations/` - Third-party integrations (Amazon SP-API, CSV import)
-- `app/models/` - SQLAlchemy data models
-- `app/schemas/` - Pydantic request/response schemas
-- `app/tasks/` - Celery async tasks
-- `scripts/` - Database initialization and seeding
-- `templates/` - CSV import templates and examples
+```
+.
+├── app/                          # FastAPI backend
+│   ├── api/v1/                  # API endpoints
+│   ├── models/                  # SQLAlchemy models
+│   ├── schemas/                 # Pydantic schemas
+│   ├── integrations/            # Amazon SP-API, CSV handling
+│   ├── tasks/                   # Celery async tasks
+│   └── core/                    # Config, security, database
+├── Proc2/procurement-frontend/   # React frontend
+│   ├── src/
+│   │   ├── pages/              # Page components
+│   │   ├── components/         # UI components
+│   │   ├── services/           # API client services
+│   │   └── stores/             # State management
+│   └── package.json
+├── scripts/                     # Utility scripts
+└── templates/                   # CSV import templates
+```
+
+## Notes
+
+- Ensure all environment variables are configured before running
+- Use a real database (PostgreSQL recommended) for production instead of SQLite
+- Rotate AWS and Amazon API credentials regularly
+- Configure CORS origins in production environment
