@@ -1,9 +1,7 @@
 # Environment variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Python
 __pycache__/
@@ -47,6 +45,9 @@ htmlcov/
 test.db
 *.db
 
+# CSV data files (test/example data)
+*.csv
+
 # IDE
 .vscode/*
 !.vscode/extensions.json
@@ -79,7 +80,6 @@ celerybeat-schedule
 celerybeat.pid
 
 # OS
-.DS_Store
 Thumbs.db
 .AppleDouble
 .LSOverride
@@ -87,4 +87,3 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
-*.swp
